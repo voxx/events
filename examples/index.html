@@ -74,59 +74,30 @@
 						'<p class="text-danger">ERROR: Your browser does not appear to support <a href="http://caniuse.com/#feat=eventsource" target="_blank">Server-sent events</a></p>');
 				}
 			});
-		</script>
-        <script>
-		function update_activity_log(message)
-		{
-			var r = $("#activity-log");
-			r.append( message + '<br>' );
-			r.scrollTop( r.prop('scrollHeight') );
-		}
-		
-		function update_worker_log(message)
-		{
-			var table = $('#worker-results');
-			
-			if( $('#' + message.workerId).length == 0 ) {
-				table.find('tbody').append('<tr id="' + message.workerId + '"><td>' + message.id + '</td><td>' + message.workerId +  '</td><td>' + message.checkChallenge + '</td><td>' +
-					'<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a></td><td>' + message.timestamp + '</td></tr>')
-			}else {
-				$('#' + message.workerId).find('td:contains("' + message.workerId + '")')
-					.next('td').text(message.checkChallenge)
-					.next('td').html(
-						'<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a>')
-					.next('td').text(message.timestamp);
-			}
-			
-		}
-        
-/**        function update_worker_log(message)
-        {
-            var table = document.getElementById('worker-results');
-			//var rowCount = table.rows.length;
-			
-			if(!table.rows[message.id]) {
 
-				var row = table.insertRow();
-				var id = row.insertCell(0);
-				var workerId = row.insertCell(1);
-				var checkChallenge = row.insertCell(2);
-				var challengeUrl = row.insertCell(3);
-				var timestamp = row.insertCell(4);
-				id.innerHTML = message.id;
-				workerId.innerHTML = message.workerId;
-				checkChallenge.innerHTML = message.checkChallenge;
-				challengeUrl.innerHTML = '<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a>';
-				timestamp.innerHTML = message.timestamp;
-			}else{
-				table.rows[message.id].cells[2].innerHTML = message.checkChallenge;
-				table.rows[message.id].cells[3].innerHTML = '<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a>';
-				table.rows[message.id].cells[4].innerHTML = message.timestamp;
+			function update_activity_log(message)
+			{
+				var r = $("#activity-log");
+				r.append( message + '<br>' );
+				r.scrollTop( r.prop('scrollHeight') );
 			}
 			
-            table.scrollTop = table.scrollHeight;
-        }
-*/
+			function update_worker_log(message)
+			{
+				var table = $('#worker-results');
+				
+				if( $('#' + message.workerId).length == 0 ) {
+					table.find('tbody').append('<tr id="' + message.workerId + '"><td>' + message.id + '</td><td>' + message.workerId +  '</td><td>' + message.checkChallenge + '</td><td>' +
+						'<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a></td><td>' + message.timestamp + '</td></tr>')
+				}else {
+					$('#' + message.workerId).find('td:contains("' + message.workerId + '")')
+						.next('td').text(message.checkChallenge)
+						.next('td').html(
+							'<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a>')
+						.next('td').text(message.timestamp);
+				}
+				table.scrollTop( table.prop('scrollHeight') );
+			}
         </script>
     </head>
     <body>
