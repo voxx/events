@@ -1,6 +1,5 @@
 # events
 
-[![Total Downloads][ico-downloads]]
 [![PHP7 Ready](https://img.shields.io/badge/PHP7-ready-green.svg)]
 
 PHP + NodeJS Server-sent events API EventSource Manager
@@ -13,7 +12,7 @@ Add the following properties to your project's `composer.json` file:
 "prefer-stable": true
 ```
 
-Then run the command `composer require voxx/events`.
+Then run the command `composer require voxx/events`
 
 # Usage
 
