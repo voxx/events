@@ -1,8 +1,6 @@
 {
     "name": "voxx/events",
-    "description": "Broadcast php generated Server-Sent-Events (SSE) to multiple concurrently connected clients leveraging NodeJS.",
-    "license": "MIT",
-    "type": "project",
+    "description": "Broadcast php generated Server-Sent-Events(SSE) to multiple concurrently connected clients leveraging custom NodeJS EventManager.",
 
     "require": {
         "php": ">=5.6"
