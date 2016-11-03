@@ -6,17 +6,17 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
 		<script>
-			var MyApp	=	{
-				ssePort:	6970
+			var MyApp = {
+				ssePort: 6970
 			};
 			
 			jQuery(function($){
-				
-				//the events source is our NodeJS application
-				MyApp.sse	=	new EventSource( '//' + window.location.hostname + ':' + MyApp.ssePort + '/');
+				// Initialize app and point to NodeJS Event Manger.
+				MyApp.sse = new EventSource( '//' + window.location.hostname + ':' + MyApp.ssePort + '/');
 				
 				MyApp.sse.addEventListener('missedCall', function(e){
-					var data	=	JSON.parse(e.data);
+					var data = JSON.parse(e.data);
+					
 					console.log(e);
 					console.log(data);
 					

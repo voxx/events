@@ -35,8 +35,8 @@ class	EventTriggerer
 		foreach($data as $k => $v)
 			$this->{$k} = $v;
 		
-		if( !is_resource($this->writeSocket	= socket_create(AF_INET, SOCK_DGRAM, SOL_UDP)) )
-			throw new Exception("socket_create error");
+		if( !is_resource($this->writeSocket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP)) )
+			throw new Exception('socket_create error');
 	}
 	
 	public function __destruct()
@@ -51,17 +51,17 @@ class	EventTriggerer
 	 */
 	public static function singleton($data = [])
 	{
-		return	new self($data);
+		return new self($data);
 	}
 	
 	protected function triggerEvent($eventType)
 	{
-		$data	=	$eventType;
+		$data = $eventType;
 		
-		if( false === ($bw	=	socket_sendto($this->writeSocket, $data, strlen($data), 0, self::ADDR, self::PORT) ) )
-			throw new Exception("socket_sendto error:" . socket_strerror(socket_last_error()));
+		if( false === ($bw = socket_sendto($this->writeSocket, $data, strlen($data), 0, self::ADDR, self::PORT) ) )
+			throw new Exception('socket_sendto error: ' . socket_strerror(socket_last_error()));
 		
-		return	$bw;
+		return $bw;
 	}
 	
 	/**
@@ -74,6 +74,6 @@ class	EventTriggerer
 	{
 		$instance = self::singleton();
 		
-		return	$instance->triggerEvent(json_encode($event));
+		return $instance->triggerEvent(json_encode($event));
 	}
 }

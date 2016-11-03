@@ -1,8 +1,8 @@
 /** 
  * EventManager app
  */
-var dgram	= require("dgram");
-var http	= require("http");
+var dgram	= require('dgram');
+var http	= require('http');
 var url		= require('url');
 
 /**
@@ -13,7 +13,8 @@ var url		= require('url');
 var clients	=	{};
 var clientsLength	=	0;
 
-var i = 0;	//debug variable
+//debug ID variable
+var i = 0;
 
 /**
  * The TCP Server that handles/registers new event listeners
@@ -33,65 +34,65 @@ var receiver;
 /********************************************
  * The event receiver (catch all triggered events)
  */
-receiver = dgram.createSocket("udp4");
+receiver = dgram.createSocket('udp4');
 
 var UDP_PORT	=	6969;
 var TCP_PORT	=	6970;
 
-receiver.on("error", function (err) {
-  console.log("receiver error:\n" + err.stack);
-  receiver.close();
+receiver.on('error', function (err) {
+	console.log('RECEIVER ERROR:\n' + err.stack);
+	receiver.close();
 });
 
-receiver.on("message", function (msg, rinfo) {
-	console.log( (i++) + ": receiver got: " + msg.length + " bytes from " + rinfo.address + ":" + rinfo.port);
+receiver.on('message', function (msg, rinfo) {
+	console.log( 'EVENT ID: ' + (i++) + ' - EVENT MANAGER GOT: ' + msg.length + ' BYTES FROM ' + rinfo.address + ':' + rinfo.port);
 	
 	var json = JSON.parse(msg);
-   
+	
 	if(clientsLength <= 0)
-		console.log("no clients registered!");
-   
+		console.log('NO CLIENTS CURRENTLY REGISTERED!');
+
 	//forward the event to all registered clients
 	for(var j in clients) {
 		
 		if(!clients.hasOwnProperty(j))
 			continue;
-	  
+		
 		var client = clients[j];
-	  
+		
 		if(!json.userId || client.userId == json.userId)
 		{
-		client.response.write('event: ' + (json.type || 'ping') + "\n");
+		client.response.write('event: ' + (json.type || 'ping') + '\n');
 			if(json.id)
-				client.response.write('id: ' + json.id + "\n");
-				client.response.write('data: ' + msg + "\n\n");
+				client.response.write('id: ' + json.id + '\n');
+				client.response.write('data: ' + msg + '\n\n');
 				
-				console.log("forwarded to client #" + j);
+				console.log('BROADCASTING DATA TO CLIENT #' + j);
 			}
 			else
-				//we don't forward event that are for other user
-				console.log("not forwarded to client: " + j);
+				// Don't broadcast data not meant for this client!
+				console.log('NOT BROADCASTING DATA TO CLIENT: ' + j);
 		}
 	}
 );
 
 setInterval(function() {
 	for(var j in clients) {
-	if (!clients.hasOwnProperty(j))
-		continue;
-	
-		var client = clients[j];
-	
-		client.response.write("event: ping\n");
-		client.response.write('data: ' + 'stay alive' + "\n\n");
+		if( !clients.hasOwnProperty(j) )
+			continue;
 		
-		console.log("pinged client #" + j);
+		var client = clients[j];
+		
+		client.response.write('event: ping\n');
+		client.response.write('data: ' + 'keepalive probe' + '\n\n');
+		
+		console.log('PINGED CLIENT #' + j);
 	}
-}, 60 * 1000); // PING connected clients every (X)seconds to ensure connection doesn't timeout.
+}, 60 * 1000); // PING connected clients every (X)seconds to ensure they are kept alive.
 
-receiver.on("listening", function () {
+receiver.on('listening', function () {
 	var address = receiver.address();
-	console.log("UDP receiver listening on " + address.address + ":" + address.port);
+	console.log('UDP RECEIVER LISTENING ON ' + address.address + ':' + address.port);
 });
 
 receiver.bind(UDP_PORT, '127.0.0.1');
@@ -102,21 +103,21 @@ receiver.bind(UDP_PORT, '127.0.0.1');
 listenersManager = http.createServer();
 
 listenersManager.on('request', function(req, response){
-
+	
 	var sock		=	req.connection;
 	var client_id	=	sock.remoteAddress + ':' + sock.remotePort + '#' + Math.random();
 	var url_parts	=	url.parse(req.url, true);
 	
-	console.log("NEW client request registration:" + sock.remoteAddress + ':' + sock.remotePort);
+	console.log('** NEW CLIENT REQUESTED REGISTRATION:' + sock.remoteAddress + ':' + sock.remotePort + ' **');
 	
 	// add client to clients list
 	clients[client_id] = {
 		response:	response,
 		userId:		url_parts.query.userId
 	};
-
+	
 	clientsLength++;
-	console.log("clientsLength:" + clientsLength);
+	console.log('clientsLength:' + clientsLength);
 	
 	response.writeHead(200, {
 		'Content-Type'					:	'text/event-stream', 
@@ -124,24 +125,24 @@ listenersManager.on('request', function(req, response){
 	});
 	
 	sock.on('close', function(){
-		console.log("client closed:" + client_id);
+		// Emitted once the socket is fully closed. 
+		console.log('** SERVER CLOSED CONNECTION:' + client_id + ' **');
 	});
 	
 	sock.on('end', function(){
-		console.log("client ended:" + client_id);
-		delete clients[client_id];		
+		// Emitted when the other end of the socket sends a FIN packet.
+		console.log('** CLIENT ENDED CONNECTION:' + client_id + ' **');
+		delete clients[client_id];
 		clientsLength--;
 	});
 	
 	sock.on('error', function(){
-		console.log("error event:" + client_id);
+		console.log('error event:' + client_id);
 	});
-
+	
 }).listen(TCP_PORT, '0.0.0.0');
-
 
 function pecho(s)
 {
 	console.log(s);
 }
-
