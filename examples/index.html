@@ -103,7 +103,8 @@
 							'<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a>')
 						.next('td').text(message.timestamp);
 				}
-				table.scrollTop( table.prop('scrollHeight') );
+				var panel = table.parent().parent();
+				panel.scrollTop( panel.prop('scrollHeight') );
 			}
         </script>
     </head>
@@ -119,7 +120,7 @@
 				<div id="workers" class="col-md-8">
 					<div class="panel panel-primary">
 						<div class="panel-heading">WORKER STATUS</div>
-						<div class="panel-body" style="height:600px; overflow:auto;">
+						<div id="worker-panel" class="panel-body" style="height:600px; overflow:auto;">
 							<div class="table-responsive">
 								<table id="worker-results" class="table table-sm">
 									  <thead>
