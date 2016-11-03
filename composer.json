@@ -1,6 +1,6 @@
 {
     "name": "voxx/events",
-    "description": "Broadcast SSE to multiple connected clients using NodeJS.",
+    "description": "Broadcast php generated Server-Sent-Events (SSE) to multiple concurrently connected clients leveraging NodeJS.",
     "license": "MIT",
     "type": "project",
 
@@ -8,13 +8,10 @@
         "php": ">=5.6",
         "voxx/events": "dev-master"
     },
-	"require-dev": {
-            "phpunit/phpunit": "^5.0"
-    },
     "autoload": {
         "psr-4": {
             "voxx\\Events\\": "src/"
-         }
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

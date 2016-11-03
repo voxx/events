@@ -6,9 +6,9 @@
  * Usage: 
  * 
  * voxx\Events\EventTriggerer::trigger(array(
- *		'type' => 'missedCall', //any type
- *		'from' => '+40753234543,//any custom additional data
- *		...		        //any additional properties
+ *		'type' => 'missedCall', 	//any type
+ *		'from' => '+40753234543,	//any custom additional data
+ *		....						//any additional properties
  *	));
  * 
  * @see EventListener
@@ -21,7 +21,7 @@ class	EventTriggerer
 	 * The socket used to write/send events to EventManager
 	 * @var resource
 	 */
-	protected	$writeSocket	=	null;
+	protected $writeSocket = null;
 	
 	const PORT	=	6969;
 	const ADDR	=	'127.0.0.1';
@@ -33,7 +33,7 @@ class	EventTriggerer
 	protected function __construct($data = [])
 	{
 		foreach($data as $k => $v)
-			$this->{$k}	=	$v;
+			$this->{$k} = $v;
 		
 		if( !is_resource($this->writeSocket	= socket_create(AF_INET, SOCK_DGRAM, SOL_UDP)) )
 			throw new Exception("socket_create error");
@@ -72,7 +72,7 @@ class	EventTriggerer
 	 */
 	public static function trigger($event)
 	{
-		$instance	=	self::singleton();
+		$instance = self::singleton();
 		
 		return	$instance->triggerEvent(json_encode($event));
 	}

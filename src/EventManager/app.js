@@ -44,54 +44,54 @@ receiver.on("error", function (err) {
 });
 
 receiver.on("message", function (msg, rinfo) {
-  console.log( (i++) + ": receiver got: " + msg.length + " bytes from " + rinfo.address + ":" + rinfo.port);
-  
-  var json	=	JSON.parse(msg);
+	console.log( (i++) + ": receiver got: " + msg.length + " bytes from " + rinfo.address + ":" + rinfo.port);
+	
+	var json = JSON.parse(msg);
    
-   if(clientsLength <= 0)
-	   console.log("no clients registered!");
+	if(clientsLength <= 0)
+		console.log("no clients registered!");
    
-  //forward the event to all registered clients
-  for(var j in clients)
-  {
-	  if(!clients.hasOwnProperty(j))
-		  continue;
+	//forward the event to all registered clients
+	for(var j in clients) {
+		
+		if(!clients.hasOwnProperty(j))
+			continue;
 	  
-	  var client = clients[j];
+		var client = clients[j];
 	  
-	  if(!json.userId || client.userId == json.userId)
-	  {
-		 client.response.write('event: ' + (json.type || 'ping') + "\n");
-		 if(json.id)
-			 client.response.write('id: ' + json.id + "\n");
-		 client.response.write('data: ' + msg + "\n\n");
-	   
-	    console.log("forwarded to client #" + j);
+		if(!json.userId || client.userId == json.userId)
+		{
+		client.response.write('event: ' + (json.type || 'ping') + "\n");
+			if(json.id)
+				client.response.write('id: ' + json.id + "\n");
+				client.response.write('data: ' + msg + "\n\n");
+				
+				console.log("forwarded to client #" + j);
+			}
+			else
+				//we don't forward event that are for other user
+				console.log("not forwarded to client: " + j);
+		}
 	}
-	else//we don't forward event that are for other user
-	    console.log("not forwarded to client: " + j);
- }
-});
+);
 
 setInterval(function() {
-	for (var j in clients)
-	{
-		if (!clients.hasOwnProperty(j))
-			continue;
-		
+	for(var j in clients) {
+	if (!clients.hasOwnProperty(j))
+		continue;
+	
 		var client = clients[j];
-
+	
 		client.response.write("event: ping\n");
-		client.response.write('data: ' + 'stai alive' + "\n\n");
-
+		client.response.write('data: ' + 'stay alive' + "\n\n");
+		
 		console.log("pinged client #" + j);
 	}
-}, 60*10 * 1000);
+}, 60 * 1000); // PING connected clients every (X)seconds to ensure connection doesn't timeout.
 
 receiver.on("listening", function () {
-  var address = receiver.address();
-  console.log("UDP receiver listening on " +
-      address.address + ":" + address.port);
+	var address = receiver.address();
+	console.log("UDP receiver listening on " + address.address + ":" + address.port);
 });
 
 receiver.bind(UDP_PORT, '127.0.0.1');
@@ -107,18 +107,16 @@ listenersManager.on('request', function(req, response){
 	var client_id	=	sock.remoteAddress + ':' + sock.remotePort + '#' + Math.random();
 	var url_parts	=	url.parse(req.url, true);
 	
-	console.log("new client request registration:" + sock.remoteAddress + ':' + sock.remotePort);
+	console.log("NEW client request registration:" + sock.remoteAddress + ':' + sock.remotePort);
 	
 	// add client to clients list
-	clients[client_id]	=	{
+	clients[client_id] = {
 		response:	response,
 		userId:		url_parts.query.userId
 	};
 
 	clientsLength++;
-
 	console.log("clientsLength:" + clientsLength);
-	
 	
 	response.writeHead(200, {
 		'Content-Type'					:	'text/event-stream', 
@@ -131,15 +129,14 @@ listenersManager.on('request', function(req, response){
 	
 	sock.on('end', function(){
 		console.log("client ended:" + client_id);
-		
-		delete clients[client_id];
-		
+		delete clients[client_id];		
 		clientsLength--;
 	});
 	
 	sock.on('error', function(){
 		console.log("error event:" + client_id);
 	});
+
 }).listen(TCP_PORT, '0.0.0.0');
 
 
@@ -147,3 +144,4 @@ function pecho(s)
 {
 	console.log(s);
 }
+

@@ -4,10 +4,9 @@
  * Library for event listeners. 
  * 
  * Every script that needs to listen to global inter-process events, should call
- * EventListener::singleton()->waitEvent()  which connect to EventManager and waits (is blocking) 
- * until a event arrives from EventManager;
- * EventManager is a running nodejs application server located at 
- * EventManager/app.js
+ * EventListener::singleton()->waitEvent()
+ * Which connects to EventManager and waits (is blocking) until an event arrives from EventManager.
+ * EventManager is a running nodejs application server located at EventManager/app.js
  * The EventManager acts as a multiplexer, forwarning events triggered by 
  * EventTriggerer::trigger() to all connected event listeners
  * 
@@ -21,7 +20,7 @@ class	EventListener
 	 * The socket used to connect to EventManager on ADDR:PORT
 	 * @var resource
 	 */
-	protected	$socket	=	null;
+	protected $socket = null;
 	
 	const PORT	=	6970;
 	const ADDR	=	'127.0.0.1';
@@ -30,7 +29,7 @@ class	EventListener
 	 *
 	 * @var EventListener 
 	 */
-	protected static	$instance;
+	protected static $instance;
 	
 	/**
 	 * Constructor
@@ -40,7 +39,7 @@ class	EventListener
 	protected function __construct($data = [])
 	{
 		foreach($data as $k => $v)
-			$this->{$k}	=	$v;
+			$this->{$k}	= $v;
 		
 		$this->init();
 	}
@@ -110,8 +109,8 @@ class	EventListener
 		if( false === $br || '' === $br )
 			throw new Exception("socket_read error:" . socket_strerror(socket_last_error()));
 		
-		$obj	=	json_decode($br, true);
+		$obj = json_decode($br, true);
 		
-		return	$obj;
+		return $obj;
 	}
 }
