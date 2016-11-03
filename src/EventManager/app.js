@@ -50,9 +50,9 @@ receiver.on('message', function (msg, rinfo) {
 	var json = JSON.parse(msg);
 	
 	if(clientsLength <= 0)
-		console.log('NO CLIENTS CURRENTLY REGISTERED!');
+		console.log('NO CLIENTS CURRENTLY REGISTERED TO STREAM!');
 
-	//forward the event to all registered clients
+	// Broadcast the event to all registered clients
 	for(var j in clients) {
 		
 		if(!clients.hasOwnProperty(j))
@@ -62,16 +62,16 @@ receiver.on('message', function (msg, rinfo) {
 		
 		if(!json.userId || client.userId == json.userId)
 		{
-		client.response.write('event: ' + (json.type || 'ping') + '\n');
+		client.response.write('event: ' + (json.type || 'heartbeat') + '\n');
 			if(json.id)
 				client.response.write('id: ' + json.id + '\n');
 				client.response.write('data: ' + msg + '\n\n');
 				
-				console.log('BROADCASTING DATA TO CLIENT #' + j);
+				console.log('BROADCASTING EVENT TO CLIENT #' + j);
 			}
 			else
-				// Don't broadcast data not meant for this client!
-				console.log('NOT BROADCASTING DATA TO CLIENT: ' + j);
+				// Don't broadcast event data not meant for this client!
+				console.log('NOT BROADCASTING EVENT TO CLIENT: ' + j);
 		}
 	}
 );
@@ -83,16 +83,16 @@ setInterval(function() {
 		
 		var client = clients[j];
 		
-		client.response.write('event: ping\n');
-		client.response.write('data: ' + 'keepalive probe' + '\n\n');
+		client.response.write('event: heartbeat\n');
+		client.response.write('data: ' + JSON.stringify( {timestamp: Date.now().toString()} ) + '\n\n');
 		
-		console.log('PINGED CLIENT #' + j);
+		console.log('HEARTBEAT BROADCAST TO CLIENT #' + j);
 	}
-}, 60 * 1000); // PING connected clients every (X)seconds to ensure they are kept alive.
+}, (60 * 1000)); // Broadcast heartbeat to clients every (X)milliseconds to ensure the connections are kept alive.
 
 receiver.on('listening', function () {
 	var address = receiver.address();
-	console.log('UDP RECEIVER LISTENING ON ' + address.address + ':' + address.port);
+	console.log('UDP RECEIVER LISTENING ON: ' + address.address + ':' + address.port);
 });
 
 receiver.bind(UDP_PORT, '127.0.0.1');
@@ -108,7 +108,7 @@ listenersManager.on('request', function(req, response){
 	var client_id	=	sock.remoteAddress + ':' + sock.remotePort + '#' + Math.random();
 	var url_parts	=	url.parse(req.url, true);
 	
-	console.log('** NEW CLIENT REQUESTED REGISTRATION:' + sock.remoteAddress + ':' + sock.remotePort + ' **');
+	console.log('** NEW CLIENT REQUESTED REGISTRATION: ' + sock.remoteAddress + ':' + sock.remotePort + ' **');
 	
 	// add client to clients list
 	clients[client_id] = {
@@ -126,18 +126,18 @@ listenersManager.on('request', function(req, response){
 	
 	sock.on('close', function(){
 		// Emitted once the socket is fully closed. 
-		console.log('** SERVER CLOSED CONNECTION:' + client_id + ' **');
+		console.log('** SERVER CLOSED CONNECTION: ' + client_id + ' **');
 	});
 	
 	sock.on('end', function(){
 		// Emitted when the other end of the socket sends a FIN packet.
-		console.log('** CLIENT ENDED CONNECTION:' + client_id + ' **');
+		console.log('** CLIENT ENDED CONNECTION: ' + client_id + ' **');
 		delete clients[client_id];
 		clientsLength--;
 	});
 	
 	sock.on('error', function(){
-		console.log('error event:' + client_id);
+		console.log('error event: ' + client_id);
 	});
 	
 }).listen(TCP_PORT, '0.0.0.0');

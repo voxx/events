@@ -1,33 +1,172 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<title>Server Sent Events Demo</title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<html lang="en">
+    <head>
+		<title>SSE EVENT STREAM</title>
+        <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="referrer" content="no-referrer" />
+		<link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+		<script src="http://code.jquery.com/jquery-1.12.4.min.js"
+			  integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+			  crossorigin="anonymous">
+		</script>
 		<script>
-			var MyApp = {
+			var App = {
 				ssePort: 6970
 			};
 			
 			jQuery(function($){
-				// Initialize app and point to NodeJS Event Manger.
-				MyApp.sse = new EventSource( '//' + window.location.hostname + ':' + MyApp.ssePort + '/');
-				
-				MyApp.sse.addEventListener('missedCall', function(e){
-					var data = JSON.parse(e.data);
+				// Check for EventSource API browser support
+				if( !!window.EventSource ) {
+					// Initialize app and point to NodeJS Event Manager.
+					App.sse = new EventSource( '//' + window.location.hostname + ':' + App.ssePort + '/');
 					
-					console.log(e);
-					console.log(data);
+					update_activity_log('Listening for connection from event stream...');
 					
-					$('<li>' + e.data + '</li>').appendTo('#events')
-				});
+					// A generic message event was received.
+					App.sse.onmessage = function(e) 
+					{
+						var data = JSON.parse( e.data );
+						
+						update_activity_log(data.message);
+						
+						if(e.data.search('COMPLETE') != -1)
+						{
+							App.sse.close();
+							update_activity_log('EVENT BROADCAST COMPLETE');
+						}
+					};
+					
+					// A custom `heartbeat` event was received.
+					App.sse.addEventListener('heartbeat' , function(e) 
+					{
+						var data = JSON.parse( e.data );
+						
+						update_activity_log('HeartBeat: ' + data.timestamp);
+						//console.log('HeartBeat: ' + data.timestamp);
+					});
+					
+					// A custom `update` event was received.
+					App.sse.addEventListener('update' , function(e) 
+					{
+						var result = JSON.parse( e.data );
+						
+						update_worker_log(result.data);
+						//console.log(result);
+					});
+					
+					// An open event was recieved.
+					App.sse.onopen = function(e) 
+					{
+						update_activity_log('Successfully established connection to: ' + e.target.url);
+						//console.log('Successfully established connection to: ' + e.target.url);
+					};
+					
+					// An error event was received.
+					App.sse.onerror = function(e) 
+					{
+						update_activity_log('Error establishing connection to: ' + e.target.url);
+						//console.log('Error establishing connection to: ' + e.target.url);
+					};
+					
+				}else {
+					update_activity_log(
+						'<p class="text-danger">ERROR: Your browser does not appear to support <a href="http://caniuse.com/#feat=eventsource" target="_blank">Server-sent events</a></p>');
+				}
 			});
 		</script>
-	</head>
-	<body>
-		<h1>Server Sent Events Demo</h1>
-		<div>Events:</div>
-		<ul id="events"></ul>
-	</body>
+        <script>
+		function update_activity_log(message)
+		{
+			var r = $("#activity-log");
+			r.append( message + '<br>' );
+			r.scrollTop( r.prop('scrollHeight') );
+		}
+		
+		function update_worker_log(message)
+		{
+			var table = $('#worker-results');
+			
+			if( $('#' + message.workerId).length == 0 ) {
+				table.find('tbody').append('<tr id="' + message.workerId + '"><td>' + message.id + '</td><td>' + message.workerId +  '</td><td>' + message.checkChallenge + '</td><td>' +
+					'<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a></td><td>' + message.timestamp + '</td></tr>')
+			}else {
+				$('#' + message.workerId).find('td:contains("' + message.workerId + '")')
+					.next('td').text(message.checkChallenge)
+					.next('td').html(
+						'<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a>')
+					.next('td').text(message.timestamp);
+			}
+			
+		}
+        
+/**        function update_worker_log(message)
+        {
+            var table = document.getElementById('worker-results');
+			//var rowCount = table.rows.length;
+			
+			if(!table.rows[message.id]) {
+
+				var row = table.insertRow();
+				var id = row.insertCell(0);
+				var workerId = row.insertCell(1);
+				var checkChallenge = row.insertCell(2);
+				var challengeUrl = row.insertCell(3);
+				var timestamp = row.insertCell(4);
+				id.innerHTML = message.id;
+				workerId.innerHTML = message.workerId;
+				checkChallenge.innerHTML = message.checkChallenge;
+				challengeUrl.innerHTML = '<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a>';
+				timestamp.innerHTML = message.timestamp;
+			}else{
+				table.rows[message.id].cells[2].innerHTML = message.checkChallenge;
+				table.rows[message.id].cells[3].innerHTML = '<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a>';
+				table.rows[message.id].cells[4].innerHTML = message.timestamp;
+			}
+			
+            table.scrollTop = table.scrollHeight;
+        }
+*/
+        </script>
+    </head>
+    <body>
+        <div class="container-fluid" role="main">
+			<header class="head">
+				<div class="row">
+					<h1 class="text-center">SSE EVENT STREAM</h1>
+				</div>
+			</header>
+			
+			<div class="row">
+				<div id="workers" class="col-md-8">
+					<div class="panel panel-primary">
+						<div class="panel-heading">WORKER STATUS</div>
+						<div class="panel-body" style="height:600px; overflow:auto;">
+							<div class="table-responsive">
+								<table id="worker-results" class="table table-sm">
+									  <thead>
+										<tr>
+											<th>#</th>
+											<th>WORKER ID</th>
+											<th>CHECK CHALLENGE</th>
+											<th>CHALLENGE URL</th>
+											<th>TIMESTAMP</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="tasks" class="col-md-4">
+					<div class="panel panel-info">
+						<div class="panel-heading">ACTIVITY LOG</div>
+						<div class="panel-body" id="activity-log" style="height:600px; overflow:auto;"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+    </body>
 </html>

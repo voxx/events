@@ -6,7 +6,7 @@
  * Usage: 
  * 
  * voxx\Events\EventTriggerer::trigger(array(
- *		'type' => 'missedCall',		//any type
+ *		'type' => 'update',			//any type
  *		'from' => '+40753234543,	//any custom additional data
  *		....						//any additional properties
  *	));
@@ -41,7 +41,7 @@ class	EventTriggerer
 	
 	public function __destruct()
 	{
-		if($this->writeSocket)
+		if( $this->writeSocket )
 			socket_close($this->writeSocket);
 	}
 	/**
@@ -58,7 +58,7 @@ class	EventTriggerer
 	{
 		$data = $eventType;
 		
-		if( false === ($bw = socket_sendto($this->writeSocket, $data, strlen($data), 0, self::ADDR, self::PORT) ) )
+		if( false === ($bw = socket_sendto($this->writeSocket, $data, strlen($data), 0, self::ADDR, self::PORT)) )
 			throw new Exception('socket_sendto error: ' . socket_strerror(socket_last_error()));
 		
 		return $bw;

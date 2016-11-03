@@ -51,10 +51,10 @@ class	EventListener
 	protected function init()
 	{
 		if( !is_resource($this->socket	= socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) )
-			throw new Exception("socket_create error:" . socket_strerror(socket_last_error()));
+			throw new Exception('socket_create error: ' . socket_strerror(socket_last_error()));
 	
-		if(!socket_connect($this->socket, self::ADDR, self::PORT))
-			throw new Exception("Socket connect error(" .  self::ADDR . "," . self::PORT . "):" . socket_strerror(socket_last_error()));
+		if( !socket_connect($this->socket, self::ADDR, self::PORT) )
+			throw new Exception('Socket connect error(' .  self::ADDR . ',' . self::PORT . '): ' . socket_strerror(socket_last_error()));
 	}
 	
 	/**
@@ -62,7 +62,7 @@ class	EventListener
 	 */
 	protected function close()
 	{
-		if($this->socket)
+		if( $this->socket )
 		{
 			socket_close($this->socket);
 			unset($this->socket);
@@ -104,10 +104,10 @@ class	EventListener
 	 */
 	public function waitEvent()
 	{
-		$br	= socket_read($this->socket, 999999, PHP_BINARY_READ);
+		$br = socket_read($this->socket, 999999, PHP_BINARY_READ);
 		
 		if( false === $br || '' === $br )
-			throw new Exception("socket_read error:" . socket_strerror(socket_last_error()));
+			throw new Exception('socket_read error: ' . socket_strerror(socket_last_error()));
 		
 		$obj = json_decode($br, true);
 		
