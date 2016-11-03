@@ -6,7 +6,7 @@
  * Usage: 
  * 
  * voxx\Events\EventTriggerer::trigger(array(
- *		'type' => 'missedCall', 	//any type
+ *		'type' => 'missedCall',		//any type
  *		'from' => '+40753234543,	//any custom additional data
  *		....						//any additional properties
  *	));
