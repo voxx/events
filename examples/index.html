@@ -30,11 +30,11 @@
 						
 						update_activity_log(data.message);
 						
-						if(e.data.search('COMPLETE') != -1)
-						{
-							App.sse.close();
-							update_activity_log('EVENT BROADCAST COMPLETE');
-						}
+						//if(e.data.search('COMPLETE') != -1)
+						//{
+						//	App.sse.close();
+						//	update_activity_log('EVENT BROADCAST COMPLETE');
+						//}
 					};
 					
 					// A custom `heartbeat` event was received.
@@ -83,13 +83,20 @@
 			}
 			
 			function update_worker_log(message)
-			{
+			{				
 				var table = $('#worker-results');
 				
 				if( $('#' + message.workerId).length == 0 ) {
-					table.find('tbody').append('<tr id="' + message.workerId + '"><td>' + message.id + '</td><td>' + message.workerId +  '</td><td>' + message.checkChallenge + '</td><td>' +
-						'<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a></td><td>' + message.timestamp + '</td></tr>')
+					update_activity_log('Adding new workerId: ' + message.workerId);
+					
+					table.find('tbody').append('<tr id="' + message.workerId + '"><td>' + message.id + '</td><td>' +
+						message.workerId +  '</td><td>' +
+						message.checkChallenge + '</td><td>' +
+						'<a target="_blank" href="' + message.challengeUrl + '">' + message.challengeUrl + '</a></td><td>' +
+						message.timestamp + '</td></tr>')
 				}else {
+					update_activity_log('Updating existing workerId: ' + message.workerId);
+					
 					$('#' + message.workerId).find('td:contains("' + message.workerId + '")')
 						.next('td').text(message.checkChallenge)
 						.next('td').html(
